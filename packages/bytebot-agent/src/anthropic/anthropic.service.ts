@@ -59,6 +59,7 @@ export class AnthropicService implements BytebotAgentService {
       const response = await this.anthropic.messages.create(
         {
           model,
+          max_tokens: 65536, // Use a reasonable high limit instead of artificial restriction
           thinking: { type: 'disabled' },
           system: [
             {
