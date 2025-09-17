@@ -26,7 +26,7 @@ export function MessageContent({
     if (
       isToolResultContentBlock(block) &&
       (block.is_error || 
-       (block.content && block.content.some((contentBlock: any) => isImageContentBlock(contentBlock))))
+       (block.content && block.content.some((contentBlock: MessageContentBlock) => isImageContentBlock(contentBlock))))
     ) {
       return true;
     }
@@ -54,7 +54,7 @@ export function MessageContent({
 
           {isToolResultContentBlock(block) &&
             !block.is_error &&
-            block.content.map((contentBlock: any, contentBlockIndex: number) => {
+            block.content.map((contentBlock: MessageContentBlock, contentBlockIndex: number) => {
               if (isImageContentBlock(contentBlock)) {
                 return (
                   <ImageContent key={contentBlockIndex} block={contentBlock} />
