@@ -39,9 +39,9 @@ export function MessageContent({
     if (isTextContentBlock(block)) {
       return true;
     }
-    // Always show thinking blocks to display agent reasoning
+    // Show thinking blocks only if not encrypted
     if (isThinkingContentBlock(block)) {
-      return true;
+      return !block.thinking.startsWith('gAAAAAB');
     }
     return true; // Show all blocks by default for better transparency
   });
@@ -63,7 +63,16 @@ export function MessageContent({
                 🤔 Agent Thinking...
               </div>
               <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                {block.thinking}
+                {block.thinking.startsWith('gAAAAAB') ? (
+                  <div className="italic text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                      <span>Processing complex reasoning (content encrypted by OpenAI)</span>
+                    </div>
+                  </div>
+                ) : (
+                  block.thinking
+                )}
               </div>
             </div>
           )}
