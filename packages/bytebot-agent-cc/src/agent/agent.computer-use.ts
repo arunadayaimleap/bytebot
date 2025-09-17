@@ -183,6 +183,8 @@ export async function handleComputerToolUse(
 
     let image: string | null = null;
     try {
+      // Reduce delay for faster response
+      await new Promise(resolve => setTimeout(resolve, 200));
       logger.debug('Taking screenshot');
       image = await screenshot();
       logger.debug('Screenshot captured successfully');
@@ -510,7 +512,7 @@ async function cursorPosition(): Promise<Coordinates> {
       }),
     });
 
-    const data = await response.json();
+    const data = await response.json() as { x: number; y: number };
     return { x: data.x, y: data.y };
   } catch (error) {
     console.error('Error in cursor_position action:', error);
@@ -536,7 +538,7 @@ async function screenshot(): Promise<string> {
       throw new Error(`Failed to take screenshot: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { image?: string };
 
     if (!data.image) {
       throw new Error('Failed to take screenshot: No image data received');
@@ -593,7 +595,14 @@ async function readFile(input: { path: string }): Promise<{
       throw new Error(`Failed to read file: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as {
+      success: boolean;
+      data?: string;
+      name?: string;
+      size?: number;
+      mediaType?: string;
+      message?: string;
+    };
     return data;
   } catch (error) {
     console.error('Error in read_file action:', error);
@@ -629,7 +638,7 @@ export async function writeFile(input: {
       throw new Error(`Failed to write file: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { success: boolean; message?: string };
     return data;
   } catch (error) {
     console.error('Error in write_file action:', error);

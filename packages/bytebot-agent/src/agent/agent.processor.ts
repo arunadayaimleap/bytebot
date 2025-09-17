@@ -181,6 +181,7 @@ export class AgentProcessor {
       this.logger.debug(
         `Sending ${messages.length} messages to LLM for processing`,
       );
+      this.logger.log(`[AGENT] Processing task iteration for ${taskId}`);
 
       const model = task.model as unknown as BytebotAgentModel;
       let agentResponse: BytebotAgentResponse;

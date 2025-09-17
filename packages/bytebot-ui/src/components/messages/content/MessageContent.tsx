@@ -20,24 +20,25 @@ export function MessageContent({
   content,
   isTakeOver = false,
 }: MessageContentProps) {
-  // Filter content blocks and check if any visible content remains
-  const visibleBlocks = content.filter((block) => {
-    // Filter logic from the original code
+  // Show all content blocks including tool calls for better visibility
+  const visibleBlocks = content.filter((block: MessageContentBlock) => {
+    // Always show errors, images, and text blocks
     if (
       isToolResultContentBlock(block) &&
-      block.content &&
-      block.content.some((contentBlock) => isImageContentBlock(contentBlock))
+      (block.is_error || 
+       (block.content && block.content.some((contentBlock: any) => isImageContentBlock(contentBlock))))
     ) {
       return true;
     }
-    if (
-      isToolResultContentBlock(block) &&
-      block.tool_use_id !== "set_task_status" &&
-      !block.is_error
-    ) {
-      return false;
+    // Always show computer tool use blocks to display what agent is doing
+    if (isComputerToolUseContentBlock(block)) {
+      return true;
     }
-    return true;
+    // Always show text blocks for thinking/reasoning
+    if (isTextContentBlock(block)) {
+      return true;
+    }
+    return true; // Show all blocks by default for better transparency
   });
 
   // Skip rendering if no visible content
@@ -53,7 +54,7 @@ export function MessageContent({
 
           {isToolResultContentBlock(block) &&
             !block.is_error &&
-            block.content.map((contentBlock, contentBlockIndex) => {
+            block.content.map((contentBlock: any, contentBlockIndex: number) => {
               if (isImageContentBlock(contentBlock)) {
                 return (
                   <ImageContent key={contentBlockIndex} block={contentBlock} />

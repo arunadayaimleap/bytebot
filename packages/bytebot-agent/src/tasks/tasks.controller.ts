@@ -84,7 +84,7 @@ export class TasksController {
           );
         }
 
-        const proxyModels = await response.json();
+        const proxyModels = await response.json() as { data: any[] };
 
         // Map proxy response to BytebotAgentModel format
         const models: BytebotAgentModel[] = proxyModels.data.map(

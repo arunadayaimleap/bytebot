@@ -29,6 +29,9 @@ export async function handleComputerToolUse(
   block: ComputerToolUseContentBlock,
   logger: Logger,
 ): Promise<ToolResultContentBlock> {
+  logger.log(
+    `[TOOL] Executing ${block.name} with input: ${JSON.stringify(block.input)}`,
+  );
   logger.debug(
     `Handling computer tool use: ${block.name}, tool_use_id: ${block.id}`,
   );
@@ -184,7 +187,7 @@ export async function handleComputerToolUse(
     let image: string | null = null;
     try {
       // Wait before taking screenshot to allow UI to settle
-      const delayMs = 750; // 750ms delay
+      const delayMs = 300; // Reduced from 750ms to 300ms
       logger.debug(`Waiting ${delayMs}ms before taking screenshot`);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
 
@@ -515,7 +518,7 @@ async function cursorPosition(): Promise<Coordinates> {
       }),
     });
 
-    const data = await response.json();
+    const data = await response.json() as { x: number; y: number };
     return { x: data.x, y: data.y };
   } catch (error) {
     console.error('Error in cursor_position action:', error);
@@ -541,7 +544,7 @@ async function screenshot(): Promise<string> {
       throw new Error(`Failed to take screenshot: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { image?: string };
 
     if (!data.image) {
       throw new Error('Failed to take screenshot: No image data received');
@@ -598,7 +601,14 @@ async function readFile(input: { path: string }): Promise<{
       throw new Error(`Failed to read file: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as {
+      success: boolean;
+      data?: string;
+      name?: string;
+      size?: number;
+      mediaType?: string;
+      message?: string;
+    };
     return data;
   } catch (error) {
     console.error('Error in read_file action:', error);
@@ -634,7 +644,7 @@ export async function writeFile(input: {
       throw new Error(`Failed to write file: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { success: boolean; message?: string };
     return data;
   } catch (error) {
     console.error('Error in write_file action:', error);
