@@ -81,6 +81,9 @@ export class ComputerUseService {
       case 'screenshot':
         return this.screenshot();
 
+      case 'screenshot_with_html':
+        return this.screenshotWithHtml();
+
       case 'cursor_position':
         return this.cursor_position();
 
@@ -254,6 +257,107 @@ export class ComputerUseService {
     this.logger.log(`Taking screenshot`);
     const buffer = await this.nutService.screendump();
     return { image: `${buffer.toString('base64')}` };
+  }
+
+  async screenshotWithHtml(): Promise<{ image: string; html?: string; title?: string; url?: string }> {
+    this.logger.log(`Taking screenshot with HTML extraction`);
+    
+    // Take screenshot first
+    const buffer = await this.nutService.screendump();
+    const image = buffer.toString('base64');
+    
+    try {
+      // Execute JavaScript to extract HTML from Firefox
+      const execAsync = promisify(exec);
+      const script = `
+        export DISPLAY=:0.0
+        # Check if Firefox is running and get window ID
+        FIREFOX_WIN=$(xdotool search --name "Mozilla Firefox" | head -1)
+        if [ -z "$FIREFOX_WIN" ]; then
+          echo "NO_FIREFOX"
+          exit 1
+        fi
+        
+        # Focus Firefox window
+        xdotool windowactivate $FIREFOX_WIN
+        sleep 0.5
+        
+        # Use Firefox's built-in developer tools to extract HTML
+        # Press F12 to open dev tools, then use console to extract DOM
+        xdotool key F12
+        sleep 1
+        
+        # Click on console tab
+        xdotool key --delay 100 ctrl+shift+k
+        sleep 1
+        
+        # Clear console and execute JavaScript to extract page data
+        xdotool key ctrl+l
+        sleep 0.2
+        
+        # Type JavaScript to extract HTML, title, and URL
+        xdotool type --delay 50 "console.log('BYTEBOT_HTML_START'); console.log(JSON.stringify({html: document.documentElement.outerHTML, title: document.title, url: window.location.href})); console.log('BYTEBOT_HTML_END');"
+        
+        # Press Enter to execute
+        xdotool key Return
+        sleep 1
+        
+        # Select all console output and copy to clipboard
+        xdotool key ctrl+a
+        sleep 0.2
+        xdotool key ctrl+c
+        sleep 0.5
+        
+        # Close dev tools
+        xdotool key F12
+        sleep 0.5
+        
+        # Get clipboard content
+        xclip -selection clipboard -o
+      `;
+      
+      const { stdout } = await execAsync(script);
+      
+      // Parse the console output to extract the JSON data
+      const lines = stdout.split('\n');
+      let extracting = false;
+      let jsonData = '';
+      
+      for (const line of lines) {
+        if (line.includes('BYTEBOT_HTML_START')) {
+          extracting = true;
+          continue;
+        }
+        if (line.includes('BYTEBOT_HTML_END')) {
+          extracting = false;
+          break;
+        }
+        if (extracting && line.trim()) {
+          // Look for JSON data
+          try {
+            const parsed = JSON.parse(line.trim());
+            if (parsed.html) {
+              return {
+                image,
+                html: parsed.html,
+                title: parsed.title,
+                url: parsed.url
+              };
+            }
+          } catch (e) {
+            // Continue looking for valid JSON
+            continue;
+          }
+        }
+      }
+      
+      this.logger.warn('Could not extract HTML from Firefox');
+      return { image };
+      
+    } catch (error) {
+      this.logger.error('Failed to extract HTML from Firefox', error);
+      return { image };
+    }
   }
 
   private async cursor_position(): Promise<{ x: number; y: number }> {

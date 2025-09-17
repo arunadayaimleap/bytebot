@@ -158,6 +158,10 @@ export type ScreenshotToolUseBlock = ToolUseContentBlock & {
   name: "computer_screenshot";
 };
 
+export type ScreenshotWithHtmlToolUseBlock = ToolUseContentBlock & {
+  name: "computer_screenshot_with_html";
+};
+
 export type CursorPositionToolUseBlock = ToolUseContentBlock & {
   name: "computer_cursor_position";
 };
@@ -195,6 +199,7 @@ export type ComputerToolUseContentBlock =
   | PasteTextToolUseBlock
   | WaitToolUseBlock
   | ScreenshotToolUseBlock
+  | ScreenshotWithHtmlToolUseBlock
   | DragMouseToolUseBlock
   | ScrollToolUseBlock
   | CursorPositionToolUseBlock

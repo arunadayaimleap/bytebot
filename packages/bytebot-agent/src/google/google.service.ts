@@ -53,8 +53,6 @@ export class GoogleService implements BytebotAgentService {
     signal?: AbortSignal,
   ): Promise<BytebotAgentResponse> {
     try {
-      const maxTokens = 8192;
-
       // Convert our message content blocks to Anthropic's expected format
       const googleMessages = this.formatMessagesForGoogle(messages);
 
@@ -66,7 +64,6 @@ export class GoogleService implements BytebotAgentService {
             thinkingConfig: {
               thinkingBudget: 24576,
             },
-            maxOutputTokens: maxTokens,
             systemInstruction: systemPrompt,
             tools: useTools
               ? [

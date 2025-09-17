@@ -577,6 +577,49 @@ V, W, X, Y, Z
   }
 
   @Tool({
+    name: 'computer_screenshot_with_html',
+    description: 'Captures a screenshot and extracts the HTML content of the active Firefox page.',
+  })
+  async screenshotWithHtml() {
+    try {
+      const result = (await this.computerUse.action({
+        action: 'screenshot_with_html',
+      })) as { image: string; html?: string; title?: string; url?: string };
+      
+      const content = [
+        {
+          type: 'image',
+          data: await compressPngBase64Under1MB(result.image),
+          mimeType: 'image/png',
+        },
+      ];
+
+      if (result.html) {
+        content.push({
+          type: 'text',
+          text: `Page Title: ${result.title || 'Unknown'}\nPage URL: ${result.url || 'Unknown'}\n\nHTML Content:\n${result.html}`,
+        });
+      } else {
+        content.push({
+          type: 'text',
+          text: 'Screenshot taken, but HTML extraction failed (Firefox not active or no page loaded)',
+        });
+      }
+
+      return { content };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error taking screenshot with HTML: ${(err as Error).message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  @Tool({
     name: 'computer_cursor_position',
     description: 'Gets the current (x, y) coordinates of the mouse cursor.',
   })

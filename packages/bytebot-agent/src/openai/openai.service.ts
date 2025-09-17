@@ -51,11 +51,9 @@ export class OpenAIService implements BytebotAgentService {
     try {
       const openaiMessages = this.formatMessagesForOpenAI(messages);
 
-      const maxTokens = 8192;
       const response = await this.openai.responses.create(
         {
           model,
-          max_output_tokens: maxTokens,
           input: openaiMessages,
           instructions: systemPrompt,
           tools: useTools ? openaiTools : [],

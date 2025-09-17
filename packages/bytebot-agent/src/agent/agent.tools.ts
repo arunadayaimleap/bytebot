@@ -275,6 +275,15 @@ export const _screenshotTool = {
   },
 };
 
+export const _screenshotWithHtmlTool = {
+  name: 'computer_screenshot_with_html',
+  description: 'Captures a screenshot and extracts HTML content from the current page. This tool combines visual capture with underlying HTML structure, useful for web automation and content analysis.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {},
+  },
+};
+
 export const _cursorPositionTool = {
   name: 'computer_cursor_position',
   description: 'Gets the current (x, y) coordinates of the mouse cursor',
@@ -397,6 +406,7 @@ export const agentTools = [
   _pasteTextTool,
   _waitTool,
   _screenshotTool,
+  _screenshotWithHtmlTool,
   _applicationTool,
   _cursorPositionTool,
   _setTaskStatusTool,

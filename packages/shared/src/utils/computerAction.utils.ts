@@ -11,6 +11,7 @@ import {
   TypeTextAction,
   WaitAction,
   ScreenshotAction,
+  ScreenshotWithHtmlAction,
   CursorPositionAction,
   ApplicationAction,
   PasteTextAction,
@@ -60,6 +61,8 @@ export const isTypeTextAction =
 export const isWaitAction = createActionTypeGuard<WaitAction>("wait");
 export const isScreenshotAction =
   createActionTypeGuard<ScreenshotAction>("screenshot");
+export const isScreenshotWithHtmlAction =
+  createActionTypeGuard<ScreenshotWithHtmlAction>("screenshot_with_html");
 export const isCursorPositionAction =
   createActionTypeGuard<CursorPositionAction>("cursor_position");
 export const isApplicationAction =
@@ -258,6 +261,13 @@ export function convertScreenshotActionToToolUseBlock(
   return createToolUseBlock("computer_screenshot", toolUseId, {});
 }
 
+export function convertScreenshotWithHtmlActionToToolUseBlock(
+  action: ScreenshotWithHtmlAction,
+  toolUseId: string
+): ComputerToolUseContentBlock {
+  return createToolUseBlock("computer_screenshot_with_html", toolUseId, {});
+}
+
 export function convertCursorPositionActionToToolUseBlock(
   action: CursorPositionAction,
   toolUseId: string
@@ -325,6 +335,8 @@ export function convertComputerActionToToolUseBlock(
       return convertWaitActionToToolUseBlock(action, toolUseId);
     case "screenshot":
       return convertScreenshotActionToToolUseBlock(action, toolUseId);
+    case "screenshot_with_html":
+      return convertScreenshotWithHtmlActionToToolUseBlock(action, toolUseId);
     case "cursor_position":
       return convertCursorPositionActionToToolUseBlock(action, toolUseId);
     case "application":

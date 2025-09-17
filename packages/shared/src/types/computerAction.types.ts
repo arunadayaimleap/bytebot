@@ -85,6 +85,10 @@ export type ScreenshotAction = {
   action: "screenshot";
 };
 
+export type ScreenshotWithHtmlAction = {
+  action: "screenshot_with_html";
+};
+
 export type CursorPositionAction = {
   action: "cursor_position";
 };
@@ -119,6 +123,7 @@ export type ComputerAction =
   | PasteTextAction
   | WaitAction
   | ScreenshotAction
+  | ScreenshotWithHtmlAction
   | CursorPositionAction
   | ApplicationAction
   | WriteFileAction

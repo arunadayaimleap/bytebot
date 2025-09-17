@@ -47,8 +47,6 @@ export class AnthropicService implements BytebotAgentService {
     signal?: AbortSignal,
   ): Promise<BytebotAgentResponse> {
     try {
-      const maxTokens = 8192;
-
       // Convert our message content blocks to Anthropic's expected format
       const anthropicMessages = this.formatMessagesForAnthropic(messages);
 
@@ -61,7 +59,6 @@ export class AnthropicService implements BytebotAgentService {
       const response = await this.anthropic.messages.create(
         {
           model,
-          max_tokens: maxTokens * 2,
           thinking: { type: 'disabled' },
           system: [
             {

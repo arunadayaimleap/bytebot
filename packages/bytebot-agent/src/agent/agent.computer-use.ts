@@ -6,6 +6,7 @@ import {
   ToolResultContentBlock,
   MessageContentType,
   isScreenshotToolUseBlock,
+  isScreenshotWithHtmlToolUseBlock,
   isCursorPositionToolUseBlock,
   isMoveMouseToolUseBlock,
   isTraceMouseToolUseBlock,
@@ -66,6 +67,47 @@ export async function handleComputerToolUse(
           {
             type: MessageContentType.Text,
             text: 'ERROR: Failed to take screenshot',
+          },
+        ],
+        is_error: true,
+      };
+    }
+  }
+
+  if (isScreenshotWithHtmlToolUseBlock(block)) {
+    logger.debug('Processing screenshot with HTML request');
+    try {
+      logger.debug('Taking screenshot with HTML extraction');
+      const result = await screenshotWithHtml();
+      logger.debug('Screenshot with HTML captured successfully');
+
+      return {
+        type: MessageContentType.ToolResult,
+        tool_use_id: block.id,
+        content: [
+          {
+            type: MessageContentType.Image,
+            source: {
+              data: result.image,
+              media_type: 'image/png',
+              type: 'base64',
+            },
+          },
+          {
+            type: MessageContentType.Text,
+            text: `HTML Content:\n${result.html}`,
+          },
+        ],
+      };
+    } catch (error) {
+      logger.error(`Screenshot with HTML failed: ${error.message}`, error.stack);
+      return {
+        type: MessageContentType.ToolResult,
+        tool_use_id: block.id,
+        content: [
+          {
+            type: MessageContentType.Text,
+            text: 'ERROR: Failed to take screenshot with HTML',
           },
         ],
         is_error: true,
@@ -553,6 +595,41 @@ async function screenshot(): Promise<string> {
     return data.image; // Base64 encoded image
   } catch (error) {
     console.error('Error in screenshot action:', error);
+    throw error;
+  }
+}
+
+async function screenshotWithHtml(): Promise<{ image: string; html: string }> {
+  console.log('Taking screenshot with HTML extraction');
+
+  try {
+    const requestBody = {
+      action: 'screenshot_with_html',
+    };
+
+    const response = await fetch(`${BYTEBOT_DESKTOP_BASE_URL}/computer-use`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to take screenshot with HTML: ${response.statusText}`);
+    }
+
+    const data = await response.json() as { image?: string; html?: string };
+
+    if (!data.image) {
+      throw new Error('Failed to take screenshot with HTML: No image data received');
+    }
+
+    if (!data.html) {
+      throw new Error('Failed to take screenshot with HTML: No HTML data received');
+    }
+
+    return { image: data.image, html: data.html };
+  } catch (error) {
+    console.error('Error in screenshot with HTML action:', error);
     throw error;
   }
 }
