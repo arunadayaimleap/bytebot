@@ -5,6 +5,7 @@ import {
   isImageContentBlock,
   isComputerToolUseContentBlock,
   isToolResultContentBlock,
+  isThinkingContentBlock,
 } from "@bytebot/shared";
 import { TextContent } from "./TextContent";
 import { ImageContent } from "./ImageContent";
@@ -38,6 +39,10 @@ export function MessageContent({
     if (isTextContentBlock(block)) {
       return true;
     }
+    // Always show thinking blocks to display agent reasoning
+    if (isThinkingContentBlock(block)) {
+      return true;
+    }
     return true; // Show all blocks by default for better transparency
   });
 
@@ -51,6 +56,17 @@ export function MessageContent({
       {visibleBlocks.map((block, index) => (
         <div key={index}>
           {isTextContentBlock(block) && <TextContent block={block} />}
+
+          {isThinkingContentBlock(block) && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 my-2">
+              <div className="text-sm text-blue-700 font-semibold mb-2">
+                🤔 Agent Thinking...
+              </div>
+              <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                {block.thinking}
+              </div>
+            </div>
+          )}
 
           {isToolResultContentBlock(block) &&
             !block.is_error &&

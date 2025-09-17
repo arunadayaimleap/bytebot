@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import { Header } from "@/components/layout/Header";
 import { ChatInput } from "@/components/messages/ChatInput";
 import { useRouter } from "next/navigation";
@@ -17,18 +16,18 @@ import { Model } from "@/types";
 import { TaskList } from "@/components/tasks/TaskList";
 
 interface StockPhotoProps {
-  src: string;
+  src?: string;
   alt?: string;
 }
 
-const StockPhoto: React.FC<StockPhotoProps> = ({
-  src,
-  alt = "Decorative image",
-}) => {
+const StockPhoto: React.FC<StockPhotoProps> = () => {
   return (
-    <div className="h-full w-full overflow-hidden rounded-lg bg-white">
-      <div className="relative h-full w-full">
-        <Image src={src} alt={alt} fill className="object-cover" priority />
+    <div className="h-full w-full overflow-hidden rounded-lg bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+      <div className="relative h-full w-full flex items-center justify-center">
+        <div className="text-white text-xl font-bold text-center p-4">
+          🚀 Bytebot System Updated! 🚀<br/>
+          <span className="text-sm opacity-90">Changes are now live</span>
+        </div>
       </div>
     </div>
   );
